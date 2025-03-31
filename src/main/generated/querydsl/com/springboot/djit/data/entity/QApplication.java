@@ -3,9 +3,10 @@ package com.springboot.djit.data.entity;
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
 import com.querydsl.core.types.dsl.*;
-import com.springboot.djit.entity.Application;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
+
+import com.djit.entity.application.Application;
 import com.querydsl.core.types.Path;
 
 
