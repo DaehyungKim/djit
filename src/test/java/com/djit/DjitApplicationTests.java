@@ -1,4 +1,4 @@
-package com.springboot.djit;
+package com.djit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

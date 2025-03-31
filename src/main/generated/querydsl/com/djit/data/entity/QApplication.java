@@ -1,4 +1,4 @@
-package com.springboot.djit.data.entity;
+package com.djit.data.entity;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
