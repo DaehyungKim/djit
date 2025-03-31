@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>글목록창</title>
+    <style>
+       
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4; 
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+        }
+
+        
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+            background-color: white;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd; 
+        }
+
+        th, td {
+            padding: 12px 15px; 
+            text-align: center; 
+        }
+
+        th {
+            background-color: #4CAF50; 
+            color: white;/
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        
+        a {
+            text-decoration: none; 
+            color: #333; 
+            margin: 0 5px; 
+            padding: 5px 10px; 
+             transition: background-color 0.3s ease; 
+            border-radius: 4px;
+        }
+         a:hover, .sel-page{
+             color: #f4f4f4;
+              background-color: #4CAF50;
+        }
+
+       
+        .sel-page {
+            font-weight: bold; 
+        }
+
+        
+        .pagination {
+            display: flex;
+            justify-content: center; 
+            align-items: center;
+            margin-top: 20px;
+            margin-bottom: 40px;
+
+        }
+
+       
+        tr[data-href] {
+            cursor: pointer; 
+            transition: background-color 0.3s ease; 
+        }
+
+        tr[data-href]:hover {
+            background-color: #ddd; 
+           
+        }
+
+    </style>
+</head>
+
+<body>
+    <table align="center" border="1" width="80%">
+        <tr height="10" align="center" bgcolor="lightgreen">
+            <td>접수날짜</td>
+            <td>이름</td>
+            <td>성별</td>
+            <td>생년월일</td>
+            <td>전화번호</td>
+            <td>지원과정</td>
+        </tr>
+		<th:block th:switch="${list == null || #lists.isEmpty(list)}">
+		    
+		    <tr th:case="true">
+		        <td colspan="6" style="text-align: center;">접수된 내역이 없습니다</td>
+		    </tr>
+		    
+		    <th:block th:case="false">
+		        <tr th:each="app: ${list}" th:data-href="@{/admin/applicationDetail/{number}(number=${app.number}, page=${list.number +1})}">
+					<td th:text="${#temporals.format(app.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+		            <td th:text="${app.name}"></td>
+		            <td th:text="${app.sex}"></td>
+		            <td th:text="${app.birth}"></td>
+		            <td th:text="${app.phoneNumber}"></td>
+		            <td th:text="${app.subjectName}"></td>
+		        </tr>
+		    </th:block>
+		</th:block>
+    </table>
+
+    <div class="pagination">
+        
+        <a th:href="@{/admin/list(page=1)}">첫 페이지 </a>
+
+        
+        <a th:href="${list.first} ? '#' : @{/admin/list(page=${list.number})}"> 이전 </a>
+
+       
+        <span th:each="page: ${#numbers.sequence(startPage, endPage)}">
+
+           
+            <span th:if="${page == list.number + 1}" th:text="${page}" class="sel-page"></span>
+           
+            <span th:unless="${page == list.number + 1}">
+                <a th:href="@{/admin/list(page=${page})}" th:text="${page}"></a>
+            </span>
+        </span>
+
+        
+        <a th:href="${list.last} ? '#' : @{/admin/list(page=${list.number + 2})}"> 다음 </a>
+
+       
+        <a th:href="@{/admin/list(page=${list.totalPages})}"> 마지막 페이지</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = document.querySelectorAll('tr[data-href]');
+            rows.forEach(row => {
+                row.addEventListener('click', function() {
+                    window.location.href = this.dataset.href;
+                });
+            });
+        });
+    </script>
+
+</body>
+
+</html>

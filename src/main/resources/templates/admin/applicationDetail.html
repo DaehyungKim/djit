@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>지원서 상세 정보</title>
+	<style>
+		body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			line-height: 1.6;
+			margin: 0;
+			padding: 20px;
+			background-color: #f8f9fa;
+			color: #333;
+		}
+
+		.container {
+			max-width: 800px;
+			margin: 20px auto;
+			background-color: #ffffff;
+			padding: 30px;
+			border-radius: 8px;
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		}
+
+		h1 {
+			color: #0056b3;
+			text-align: center;
+			margin-bottom: 30px;
+			border-bottom: 2px solid #dee2e6;
+			padding-bottom: 10px;
+		}
+
+		.details-grid {
+			display: grid;
+			grid-template-columns: 150px 1fr;
+			gap: 15px 20px;
+			margin-bottom: 25px;
+		}
+
+		.details-grid dt {
+			font-weight: 600;
+			color: #555;
+			text-align: right;
+			padding-right: 10px;
+			border-right: 1px solid #eee;
+			font-size: 0.9em;
+			align-self: center;
+			/* 세로 정렬: 레이블 */
+		}
+
+		.details-grid dd {
+			margin: 0;
+			padding-left: 10px;
+			word-break: break-word;
+			align-self: center;
+			/* 세로 정렬: 값 */
+		}
+
+		.motivation-section dt {
+			grid-column: 1 / -1;
+			text-align: left;
+			border-right: none;
+			border-bottom: 1px solid #eee;
+			margin-bottom: 5px;
+			padding-bottom: 5px;
+			font-size: 1.1em;
+			align-self: start;
+		}
+
+		.motivation-section dd {
+			grid-column: 1 / -1;
+			padding-left: 0;
+			white-space: pre-wrap;
+			background-color: #fdfdfd;
+			padding: 15px;
+			border: 1px solid #eee;
+			border-radius: 4px;
+			margin-top: 5px;
+			align-self: start;
+		}
+
+		.timestamp-section {
+			font-size: 0.9em;
+			color: #6c757d;
+			margin-top: 30px;
+			border-top: 1px dashed #ccc;
+			padding-top: 15px;
+		}
+
+		.timestamp-section dt {
+			font-weight: normal;
+			color: #6c757d;
+			border-right: none;
+			/* 타임스탬프 오른쪽 테두리 제거 */
+			text-align: left;
+			/* 타임스탬프 왼쪽 정렬 */
+		}
+
+		.timestamp-section dd {
+			color: #6c757d;
+			padding-left: 0;
+			/* 추가 패딩 불필요 */
+		}
+
+		/* 버튼 스타일링 */
+		.button-container {
+			text-align: center;
+			margin-top: 30px;
+		}
+
+		.action-button {
+			display: inline-block;
+			margin: 0 10px;
+			/* 버튼 사이 간격 추가 */
+			padding: 10px 20px;
+			color: white;
+			text-decoration: none;
+			border-radius: 5px;
+			transition: background-color 0.3s ease;
+			border: none;
+			cursor: pointer;
+			font-size: 1em;
+		}
+
+		.back-link {
+			background-color: #6c757d;
+		}
+
+		.back-link:hover {
+			background-color: #5a6268;
+		}
+
+		.schedule-button {
+			background-color: #007bff;
+			/* 예약 버튼 파란색 */
+		}
+
+		.schedule-button:hover {
+			background-color: #0056b3;
+		}
+
+		/* 모달 스타일링 */
+		.modal {
+			display: none;
+			/* 기본적으로 숨김 */
+			position: fixed;
+			/* 위치 고정 */
+			z-index: 1000;
+			/* 최상단에 표시 */
+			left: 0;
+			top: 0;
+			width: 100%;
+			/* 전체 너비 */
+			height: 100%;
+			/* 전체 높이 */
+			overflow: auto;
+			/* 필요시 스크롤 활성화 */
+			background-color: rgba(0, 0, 0, 0.5);
+			/* 반투명 검은색 배경 */
+			align-items: center;
+			/* 수직 중앙 정렬 */
+			justify-content: center;
+			/* 수평 중앙 정렬 */
+		}
+
+		.modal-content {
+			background-color: #fefefe;
+			margin: auto;
+			padding: 25px 30px;
+			border: 1px solid #888;
+			width: 80%;
+			max-width: 450px;
+			/* 최대 너비 제한 */
+			border-radius: 8px;
+			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+			position: relative;
+			/* 닫기 버튼 위치 기준 */
+		}
+
+		.close-button {
+			color: #aaa;
+			position: absolute;
+			top: 10px;
+			right: 15px;
+			font-size: 28px;
+			font-weight: bold;
+			line-height: 1;
+		}
+
+		.close-button:hover,
+		.close-button:focus {
+			color: black;
+			text-decoration: none;
+			cursor: pointer;
+		}
+
+		.modal h2 {
+			margin-top: 0;
+			color: #0056b3;
+			text-align: center;
+			margin-bottom: 20px;
+		}
+
+		.modal-form label {
+			display: block;
+			margin-bottom: 5px;
+			font-weight: 600;
+			color: #555;
+		}
+
+		.modal-form input[type="date"],
+		.modal-form input[type="time"] {
+			width: calc(100% - 22px);
+			/* 패딩/테두리 고려한 너비 조정 */
+			padding: 10px;
+			margin-bottom: 15px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			font-size: 1em;
+		}
+
+		.modal-buttons {
+			text-align: right;
+			margin-top: 20px;
+		}
+
+		.modal-buttons button {
+			padding: 10px 20px;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			font-size: 0.95em;
+			margin-left: 10px;
+			transition: background-color 0.2s ease;
+		}
+
+		.modal-confirm-button {
+			background-color: #28a745;
+			/* 초록색 */
+			color: white;
+		}
+
+		.modal-confirm-button:hover {
+			background-color: #218838;
+		}
+
+		.modal-cancel-button {
+			background-color: #dc3545;
+			/* 빨간색 */
+			color: white;
+		}
+
+		.modal-cancel-button:hover {
+			background-color: #c82333;
+		}
+
+
+		@media (max-width: 600px) {
+			.details-grid {
+				grid-template-columns: 1fr;
+				gap: 5px 0;
+			}
+
+			.details-grid dt {
+				text-align: left;
+				border-right: none;
+				padding-right: 0;
+				border-bottom: 1px dotted #eee;
+				margin-bottom: 5px;
+				font-size: 0.95em;
+				color: #0056b3;
+				align-self: start;
+			}
+
+			.details-grid dd {
+				padding-left: 5px;
+				margin-bottom: 10px;
+				align-self: start;
+			}
+
+			.motivation-section dt,
+			.motivation-section dd {
+				grid-column: 1 / -1;
+			}
+
+			.motivation-section dd {
+				padding: 10px;
+			}
+
+			h1 {
+				font-size: 1.5em;
+			}
+
+			.modal-content {
+				width: 90%;
+			}
+
+			.action-button {
+				display: block;
+				/* 버튼 세로 쌓기 */
+				width: 80%;
+				margin: 10px auto;
+				/* 버튼 가운데 정렬 */
+			}
+		}
+	</style>
+
+</head>
+
+<body>
+	<div class="container" th:if="${applicationResponseDto}">
+		<h1>지원서 상세 정보</h1>
+
+		<!-- 지원서 상세 정보 -->
+		<dl class="details-grid">
+			<dt>지원 번호</dt>
+			<dd th:text="${applicationResponseDto.number}">1</dd>
+
+			<dt>지원 과정명</dt>
+			<dd th:text="${applicationResponseDto.subjectName}">웹 개발 풀스택 과정</dd>
+
+			<dt>이름</dt>
+			<dd id="name" th:text="${applicationResponseDto.name}">홍길동</dd>
+
+			<dt>이메일</dt>
+			<dd th:text="${applicationResponseDto.email}">gildong@example.com</dd>
+
+			<dt>성별</dt>
+			<dd th:text="${applicationResponseDto.sex}">남성</dd>
+
+			<dt>생년월일</dt>
+			<dd th:text="${applicationResponseDto.birth}">1995-03-15</dd>
+
+			<dt>연락처</dt>
+			<dd th:text="${applicationResponseDto.phoneNumber}">010-1234-5678</dd>
+
+			<dt>주소</dt>
+			<dd th:text="${applicationResponseDto.address}">서울특별시 강남구 테헤란로 123</dd>
+
+			<dt>최종 학력</dt>
+			<dd th:text="${applicationResponseDto.educationLevel}">대학교 졸업</dd>
+
+			<dt>결혼 여부</dt>
+			<dd th:text="${applicationResponseDto.married}">미혼</dd>
+
+			<dt>고용 보험 가입 여부</dt>
+			<dd th:text="${applicationResponseDto.employmentInsurance}">가입</dd>
+
+			<dt>교육 목표</dt>
+			<dd th:text="${applicationResponseDto.educationGoal}">취업</dd>
+		</dl>
+
+		<!-- 지원 동기 섹션 -->
+		<dl class="details-grid motivation-section">
+			<dt>지원 동기</dt>
+			<dd th:text="${applicationResponseDto.motivation}">이 과정에 지원하게 된 동기는...</dd>
+		</dl>
+
+		<!-- 타임스탬프 섹션 -->
+		<dl class="details-grid timestamp-section">
+			<dt>지원 일시</dt>
+			<dd
+				th:text="${applicationResponseDto.createdAt != null ? #temporals.format(applicationResponseDto.createdAt, 'yyyy-MM-dd HH:mm:ss') : '-'}">
+				2023-10-27 10:30:00</dd>
+
+			<dt>최종 수정 일시</dt>
+			<dd
+				th:text="${applicationResponseDto.updatedAt != null ? #temporals.format(applicationResponseDto.updatedAt, 'yyyy-MM-dd HH:mm:ss') : '-'}">
+				2023-10-27 11:00:00</dd>
+		</dl>
+
+		<!-- 액션 버튼 -->
+		<div class="button-container">
+			<!-- 상담 예약 버튼 -->
+			<button id="scheduleBtn" type="button" class="action-button schedule-button">상담 예약</button>
+			<!-- 목록으로 돌아가기 링크 -->
+			<a th:href="@{/admin/list(page=${pageable.pageNumber})}" class="action-button back-link">목록으로 돌아가기</a>
+		</div>
+	</div>
+
+	<!-- 오류 메시지 -->
+	<div th:unless="${applicationResponseDto}" class="container" style="text-align: center;">
+		<h1>오류</h1>
+		<p>지원서 정보를 찾을 수 없습니다.</p>
+		<div class="button-container">
+			<a th:href="@{/admin/list(page=${pageable.pageNumber})}" class="action-button back-link">목록으로 돌아가기</a>
+		</div>
+	</div>
+
+	<!-- 상담 예약 모달 -->
+	<div id="consultationModal" class="modal">
+		<div class="modal-content">
+			<span class="close-button">×</span>
+			<h2>상담 예약</h2>
+			<form id="consultationForm" class="modal-form">
+				<!-- 지원서 ID를 잠재적으로 저장하기 위한 숨겨진 필드 -->
+				<input type="hidden" id="number" name="number" th:value="${applicationResponseDto?.number}">
+
+				<div>
+					<label for="consultationDate">상담 날짜:</label>
+					<input type="date" id="consultationDate" name="consultationDate" required>
+				</div>
+				<div>
+					<label for="consultationTime">상담 시간:</label>
+					<input type="time" id="consultationTime" name="consultationTime" required>
+				</div>
+				<div class="modal-buttons">
+					<button type="button" id="confirmConsultationBtn" class="modal-confirm-button">예약 확정</button>
+					<button type="button" id="cancelConsultationBtn" class="modal-cancel-button">취소</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script th:inline="javascript">
+		// DOM이 완전히 로드된 후 스크립트 실행 보장
+		document.addEventListener('DOMContentLoaded', function () {
+			// 모달 요소 가져오기
+			var modal = document.getElementById("consultationModal");
+
+			// 모달을 여는 버튼 가져오기
+			var scheduleBtn = document.getElementById("scheduleBtn");
+
+			// 모달을 닫는 <span> 요소 가져오기
+			var closeBtn = modal.querySelector(".close-button");
+
+			// 모달 내부의 취소 버튼 가져오기
+			var cancelBtn = document.getElementById("cancelConsultationBtn");
+
+			// 모달 내부의 확인 버튼 가져오기
+			var confirmBtn = document.getElementById("confirmConsultationBtn");
+
+			// 날짜 및 시간 입력 필드 가져오기
+			var dateInput = document.getElementById("consultationDate");
+			var timeInput = document.getElementById("consultationTime");
+			// 이름 요소를 가져오기
+			var applicationName = document.getElementById("name");
+
+			// 모달을 여는 함수
+			function openModal() {
+				// 이전 입력 값 지우기
+				dateInput.value = '';
+				timeInput.value = '';
+				// 최소 날짜를 오늘로 설정
+				const today = new Date().toISOString().split('T')[0];
+				dateInput.setAttribute('min', today);
+				// flex를 사용하여 중앙 정렬
+				modal.style.display = "flex";
+			}
+
+			// 모달을 닫는 함수
+			function closeModal() {
+				modal.style.display = "none";
+			}
+
+			// --- 이벤트 리스너 ---
+
+			// 사용자가 예약 버튼을 클릭하면 모달 열기
+			// 버튼이 존재하는지 확인 (applicationResponseDto가 null이면 존재하지 않음)
+			if (scheduleBtn) {
+				scheduleBtn.onclick = openModal;
+			}
+
+			// 사용자가 <span> (x)을 클릭하면 모달 닫기
+			if (closeBtn) {
+				closeBtn.onclick = closeModal;
+			}
+
+			// 사용자가 취소 버튼을 클릭하면 모달 닫기
+			if (cancelBtn) {
+				cancelBtn.onclick = closeModal;
+			}
+
+			// 사용자가 모달 내용 외부 아무 곳이나 클릭하면 모달 닫기
+			window.onclick = function (event) {
+				if (event.target == modal) {
+					closeModal();
+				}
+			}
+
+			// 사용자가 확인 버튼을 클릭하면
+			if (confirmBtn) {
+				confirmBtn.onclick = function () {
+					var selectedDate = dateInput.value;
+					var selectedTime = timeInput.value;
+					// dd 요소의 텍스트 내용 가져오기
+					var appName = applicationName.textContent;
+
+					// 기본 유효성 검사
+					if (!selectedDate || !selectedTime) {
+						alert("상담 날짜와 시간을 모두 선택해주세요.");
+						return;
+					}
+
+					// --- 백엔드 제출을 위한 플레이스홀더 ---
+					// 일반적으로 여기서 fetch 또는 XMLHttpRequest를 사용하여 데이터를 서버로 보냅니다.
+					console.log("상담 예약 정보:");
+					console.log("이름:", appName);
+					console.log("날짜:", selectedDate);
+					console.log("시간:", selectedTime);
+
+					// fetch 사용 
+
+					fetch('/admin/consultation', { // 실제 엔드포인트로 교체
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							// 필요시 CSRF 토큰 헤더 포함
+							// 'X-CSRF-TOKEN': 'your-csrf-token-value'
+						},
+						body: JSON.stringify({
+
+							number: document.getElementById('number').value,
+							name: appName,
+							consultationDate: selectedDate,
+							consultationTime: selectedTime
+						})
+					})
+						.then(response => {
+							if (!response.ok) {
+								throw new Error('네트워크 응답이 올바르지 않습니다.');
+							}
+
+						})
+						.then(data => {
+							console.log('성공:', data);
+							alert(`상담이 성공적으로 예약되었습니다.\n이름: ${appName}\n날짜: ${selectedDate}\n시간: ${selectedTime}`);
+							closeModal();
+						})
+						.catch((error) => {
+							console.error('오류:', error);
+							alert('상담 예약 중 오류가 발생했습니다.');
+							// 선택적으로 오류 발생 시 모달을 열어둘 수 있습니다.
+						});
+
+
+					
+
+				}
+			}
+		});
+	</script>
+
+</body>
+
+</html>

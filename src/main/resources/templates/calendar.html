@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>캘린더</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .calendar-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .year-month {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .nav-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .calendar-table th {
+            padding: 10px;
+            background-color: #f2f2f2;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .calendar-table td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+            height: 120px;
+            vertical-align: top;
+        }
+        
+        .day {
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        .sunday {
+            color: red;
+        }
+        
+        .saturday {
+            color: blue;
+        }
+        
+        .other-month {
+            color: #ccc;
+        }
+        
+        .today {
+            background-color: #e8f5e9;
+            font-weight: bold;
+        }
+        
+        .calendar-form {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .calendar-form select {
+            padding: 8px;
+            margin: 0 5px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        
+        .calendar-form button {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .home-btn {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .home-btn a {
+            text-decoration: none;
+            color: #2196F3;
+            font-weight: bold;
+        }
+        
+        .reservation {
+            font-size: 12px;
+            margin: 3px 0;
+            padding: 2px 4px;
+            background-color: #f0f8ff;
+            border-radius: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .view-more {
+            margin-top: 5px;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .view-more a {
+            color: #2196F3;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="calendar-container">
+        <h1>캘린더</h1>
+
+        <!-- 년, 월 선택 폼 -->
+        <form class="calendar-form" th:action="@{/djit/calendar}" method="get">
+            <select name="year">
+                <option th:each="year : ${#numbers.sequence(currentYear - 5, currentYear + 5)}" 
+                        th:value="${year}" 
+                        th:text="${year} + '년'"
+                        th:selected="${year == selectedYear}"></option>
+            </select>
+            <select name="month">
+                <option th:each="month : ${#numbers.sequence(1, 12)}" 
+                        th:value="${month}" 
+                        th:text="${month} + '월'"
+                        th:selected="${month == selectedMonth}"></option>
+            </select>
+            <button type="submit">조회</button>
+        </form>
+
+        <!-- 캘린더 헤더 -->
+        <div class="calendar-header">
+            <a class="nav-btn" th:href="@{/djit/calendar(year=${prevYear}, month=${prevMonth})}">&lt; 이전 달</a>
+            <div class="year-month" th:text="${selectedYear} + '년 ' + ${selectedMonth} + '월'"></div>
+            <a class="nav-btn" th:href="@{/djit/calendar(year=${nextYear}, month=${nextMonth})}">다음 달 &gt;</a>
+        </div>
+        
+        <!-- 오늘 버튼 -->
+        <div style="text-align: center; margin-bottom: 10px;">
+            <a class="nav-btn" th:href="@{/djit/calendar}">오늘</a>
+        </div>
+
+        <!-- 캘린더 테이블 -->
+        <table class="calendar-table">
+            <thead>
+                <tr>
+                    <th class="sunday">일</th>
+                    <th>월</th>
+                    <th>화</th>
+                    <th>수</th>
+                    <th>목</th>
+                    <th>금</th>
+                    <th class="saturday">토</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="week : ${calendar}">
+                    <td th:each="day : ${week}" th:class="${day.today ? 'today' : ''} + ' ' + ${day.dayOfWeek == 0 ? 'sunday' : ''} + ' ' + ${day.dayOfWeek == 6 ? 'saturday' : ''}">
+                        <div th:class="${day.currentMonth ? 'day' : 'day other-month'}" th:text="${day.day}"></div>
+                        
+                        <!-- 예약 정보 표시 (현재 월에 해당하는 날짜만) -->
+                        <div th:if="${day.currentMonth}">
+                            <!-- 실제로는 DB에서 해당 날짜의 예약 정보를 가져와서 표시해야 함 -->
+                            <!-- 임시 예약 정보 (샘플 데이터) -->
+                            <div th:if="${selectedYear == 2025 && selectedMonth == 3 && day.day == 25}" class="reservation">09:00 김철수</div>
+                          
+                            
+                            <div class="view-more">
+                                <a th:href="@{/djit/day-detail(year=${selectedYear}, month=${selectedMonth}, day=${day.day})}" th:text="'자세히 보기'"></a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="home-btn">
+            <a th:href="@{/djit}">홈으로 이동</a>
+        </div>
+    </div>
+</body>
+</html>
