@@ -1,8 +1,8 @@
-package com.djit.dto.admin;
+package com.djit.dto.application;
 
 import java.time.LocalDateTime;
 
-import com.djit.dto.application.ApplicationDto;
+import com.djit.entity.application.Consultation;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,5 +32,7 @@ public class ApplicationResponseDto {
 	private String motivation;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
+	private ConsultationResponseDto consultation;
+	
 
 }

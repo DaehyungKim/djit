@@ -1,10 +1,23 @@
 package com.djit.controller.admin;
 
-
-import com.djit.dto.admin.ApplicationResponseDto;
-import com.djit.dto.admin.ApplicationSummaryDto;
-import com.djit.dto.admin.ConsultationDto;
+import com.djit.controller.main.DjitController.CalendarDay;
+import com.djit.dto.application.ApplicationResponseDto;
+import com.djit.dto.application.ApplicationSummaryDto;
+import com.djit.dto.application.ConsultationDto;
+import com.djit.dto.application.ConsultationResponseDto;
+import com.djit.entity.application.Consultation;
 import com.djit.service.admin.AdminService;
+
+import jakarta.servlet.http.HttpServletRequest;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +32,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/admin")
@@ -48,18 +62,22 @@ public class AdminController {
 			Model model) {
 		LOGGER.info(number + " : number 값 확인");
 		ApplicationResponseDto applicationResponseDto = adminService.getApplication(number);
+
 		model.addAttribute("applicationResponseDto", applicationResponseDto);
 		model.addAttribute("pageable", pageable);
 		return "/admin/applicationDetail";
 	}
 
 	@PostMapping("/consultation")
-	public ResponseEntity<Void> consultationApplication(@RequestBody ConsultationDto consultationDto) {
-		this.LOGGER.info("상담 예약 신청");
-		this.LOGGER.info(consultationDto.getNumber() + " : number 값 확인");
-		this.LOGGER.info(consultationDto.getName() + " : name 값 확인");
-		this.LOGGER.info(consultationDto.getConsultationDate() + " : consultationDate 값 확인");
-		this.LOGGER.info(consultationDto.getConsultationTime() + " : consultationTime 값 확인");
-		return ResponseEntity.ok().build();
+	public ResponseEntity<Map<String, String>> consultationApplication(@RequestBody ConsultationDto consultationDto) {
+		LOGGER.info("상담 예약 신청");
+		ConsultationResponseDto savedDto = adminService.consultationApplication(consultationDto);
+		String consultationDateTimeStr = savedDto.getConsultationDateTimeStr();
+		Map<String, String> responseBody = Map.of("message", "상담 예약 성공", "consultationDateTimeStr",
+				consultationDateTimeStr);
+		return ResponseEntity.ok(responseBody);
+
 	}
+	
+	
 }

@@ -1,7 +1,7 @@
 package com.djit.service.application;
 
-import com.djit.dto.admin.ApplicationResponseDto;
 import com.djit.dto.application.ApplicationDto;
+import com.djit.dto.application.ApplicationResponseDto;
 
 
 
@@ -9,7 +9,7 @@ public interface ApplicationService {
 	
 	
 
-	   ApplicationResponseDto saveApplication(ApplicationDto applicationDto);
+	   void saveApplication(ApplicationDto applicationDto);
 
 	 
 

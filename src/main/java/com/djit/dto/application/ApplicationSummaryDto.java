@@ -1,4 +1,4 @@
-package com.djit.dto.admin;
+package com.djit.dto.application;
 
 import java.time.LocalDateTime;
 
@@ -11,11 +11,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ConsultationDto {
+public class ApplicationSummaryDto {
 
 	private Long number;
+	private LocalDateTime createdAt;
 	private String name;
-	private String consultationDate;
-	private String consultationTime;
+	private String sex;
+	private String birth;
+	private String phoneNumber;
+	private String subjectName;
 
 }

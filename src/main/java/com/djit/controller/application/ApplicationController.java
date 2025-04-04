@@ -2,8 +2,10 @@ package com.djit.controller.application;
 
 
 import java.util.HashMap;
+
 import java.util.Map;
 
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -17,21 +19,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.djit.dto.admin.ApplicationResponseDto;
 import com.djit.dto.application.ApplicationDto;
+import com.djit.dto.application.ApplicationResponseDto;
+import com.djit.repository.application.ApplicationRepository;
+import com.djit.repository.application.ConsultationRepository;
 import com.djit.service.application.ApplicationService;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/application")
 public class ApplicationController {
 	
 	private final Logger LOGGER = LoggerFactory.getLogger(ApplicationController.class);
 	private final ApplicationService applicationService;
-	
-	public ApplicationController(ApplicationService applicationService) {
-		this.applicationService = applicationService;
-	}
-	
 	
 	
 	@PostMapping()

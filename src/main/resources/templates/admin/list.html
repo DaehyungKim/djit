@@ -116,7 +116,7 @@
 		</th:block>
     </table>
 
-    <div class="pagination">
+    <div class="pagination" th:if="${list != null && list.totalPages > 1}">
         
         <a th:href="@{/admin/list(page=1)}">첫 페이지 </a>
 

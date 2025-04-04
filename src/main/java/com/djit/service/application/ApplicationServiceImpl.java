@@ -1,7 +1,7 @@
 package com.djit.service.application;
 
-import com.djit.dto.admin.ApplicationResponseDto;
 import com.djit.dto.application.ApplicationDto;
+import com.djit.dto.application.ApplicationResponseDto;
 import com.djit.entity.application.Application;
 import com.djit.repository.application.ApplicationRepository;
 
@@ -20,20 +20,19 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ApplicationServiceImpl implements ApplicationService {
-
+	
 	private final Logger LOGGER = LoggerFactory.getLogger(ApplicationServiceImpl.class);
 	private final ModelMapper modelMapper;
 	private final ApplicationRepository applicationRepository;
 
-	public ApplicationResponseDto saveApplication(ApplicationDto applicationDto) {
+	@Override
+	public void saveApplication(ApplicationDto applicationDto) {
 		Application application = modelMapper.map(applicationDto, Application.class);
-
 		application.setCreatedAt(LocalDateTime.now());
 		application.setUpdatedAt(LocalDateTime.now());
+		applicationRepository.save(application);
 
-		Application savedApplication = applicationRepository.save(application);
-
-		return modelMapper.map(savedApplication, ApplicationResponseDto.class);
+		
 	}
 
 }
